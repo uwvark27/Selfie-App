@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.min.js"></script>
+    <title>Data Selfie App Final</title>
+  </head>
+  <body>
+    <h1>Data Selfie App</h1>
+    <p>
+      latitude: <span id="latitude"></span>&deg;<br />
+      longitude: <span id="longitude"></span>&deg;<BR>
+      <label for="mood">What is your mood today?</label>
+      <input id='mood' value='' />
+    </p>
+
+    <button id="submit">submit</button>
+
+
+    <script>
+
+        function setup() {
+            
+            //We need webcam info
+            const video = createCapture(VIDEO);
+            video.size(480,360);
+
+            let lat, lon;
+            const button = document.getElementById('submit');
+            button.addEventListener('click', async event => {
+            const mood = document.getElementById('mood').value;
+            video.loadPixels();
+            const image64 = video.canvas.toDataURL();
+            const data = { lat, lon, mood, image64 };
+            const options = {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+            const response = await fetch('/api', options);
+            const json = await response.json();
+            console.log(mood);
+            console.log(json);
+            });
+
+        if ('geolocation' in navigator) {
+            console.log('geolocation available');
+            navigator.geolocation.getCurrentPosition(async position => {
+            lat = position.coords.latitude;
+            lon = position.coords.longitude;
+            document.getElementById('latitude').textContent = lat;
+            document.getElementById('longitude').textContent = lon;
+            });
+        } else {
+            console.log('geolocation not available');
+        }
+
+        //since it automatically adds a canvas, here is how to view it
+        //background(255,0,0);
+
+        //No canvas needed for this project so to elminate:
+        noCanvas();
+
+
+    }//END SETUP
+
+        
+    </script>
+  </body>
+</html>
